@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FishTrade — B2B-маркетплейс рыбы (MVP)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--primary:#1C304F;--accent:#98BBF5;--bg:#F7FAFF;--card:#ffffff;--text:#0F172A;--muted:#64748B;--radius:18px;--shadow:0 10px 30px rgba(28,48,79,.10)}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:"Outfit",system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);background:var(--bg)}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1200px;margin:0 auto;padding:20px}
+    header{position:sticky;top:0;z-index:20;backdrop-filter: blur(10px);background:linear-gradient(180deg, rgba(247,250,255,.9), rgba(247,250,255,.75));border-bottom:1px solid #e8eefc}
+    .nav{display:flex;align-items:center;gap:16px;justify-content:space-between;padding:12px 20px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700}
+    .logo{width:42px;height:42px;border-radius:12px;background: radial-gradient(60% 60% at 40% 30%, #ffffff 0%, #cbe0ff 45%, #7aa5ff 100%);box-shadow:0 6px 16px rgba(152,187,245,.5) inset, 0 4px 14px rgba(28,48,79,.18);display:grid;place-items:center;color:var(--primary);font-weight:800}
+    .brand small{display:block;color:var(--muted);font-weight:500;margin-top:-4px}
+    .searchbar{flex:1;max-width:560px;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e3ebff;border-radius:999px;padding:10px 14px;box-shadow:var(--shadow)}
+    .searchbar input{border:none;outline:none;flex:1;font-size:15px}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid #e3ebff;background:#fff;font-size:13px;color:var(--primary);cursor:pointer}
+    .role{display:flex;align-items:center;border-radius:999px;overflow:hidden;border:1px solid #dbe6ff;background:#fff}
+    .role button{padding:10px 14px;border:none;background:transparent;cursor:pointer;font-weight:600;color:var(--muted)}
+    .role button.active{color:#fff;background:var(--primary)}
+    .iconbtn{border:none;background:#fff;border:1px solid #e3ebff;padding:10px 12px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow);position:relative}
+    .cart-count{position:absolute;top:-6px;right:-6px;background:crimson;color:#fff;border-radius:999px;font-size:11px;padding:2px 6px}
+    .hero{display:grid;grid-template-columns:1.4fr .9fr;gap:20px;align-items:stretch;margin-top:16px}
+    .banner{border-radius:var(--radius);padding:22px 24px;background:linear-gradient(135deg,#b9d3ff 0%, #7ea4ff 35%, #1C304F 100%);color:#fff;box-shadow:var(--shadow);position:relative;overflow:hidden;min-height:130px}
+    .banner h1{margin:0 0 2px;font-size:28px;letter-spacing:.2px}
+    .banner p{margin:0;color:#e6eeff}
+    .banner .cta{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;transition:.2s transform;box-shadow:0 8px 22px rgba(0,0,0,.08)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:#fff;color:var(--primary)}
+    .btn.secondary{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35)}
+    .index{background:#fff;border:1px solid #e3ebff;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+    .index h3{margin:0 0 10px}
+    .index .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .kpi{border:1px solid #e9efff;background:linear-gradient(180deg,#ffffff 0%, #f7fbff 100%);border-radius:14px;padding:12px;text-align:center}
+    .kpi b{display:block;font-size:20px}
+    .filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    @media (max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}.hero{grid-template-columns:1fr}}
+    @media (max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:520px){.grid{grid-template-columns:1fr}}
+    .card{background:#fff;border:1px solid #e3ebff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .thumb{height:140px;background:linear-gradient(180deg, rgba(152,187,245,.3) 0%, rgba(28,48,79,.08) 100%), radial-gradient(80px 80px at 18% 30%, #ffffff 0%, rgba(255,255,255,0) 60%), radial-gradient(120px 120px at 80% 80%, #b3ccff 0%, rgba(255,255,255,0) 60%), #98BBF5;display:grid;place-items:center;color:var(--primary);font-weight:700;font-size:24px;position:relative}
+    .badge{position:absolute;margin:10px;background:#fff;border-radius:999px;padding:6px 10px;border:1px solid #e3ebff;font-size:12px;font-weight:700;color:var(--primary);box-shadow:var(--shadow)}
+    .content{padding:14px 14px 12px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .muted{color:var(--muted)}
+    .price{font-size:20px;font-weight:700;color:var(--primary)}
+    .seller{display:flex;align-items:center;gap:8px;margin-top:8px}
+    .seller .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(180deg,#dfe8ff,#b8cfff)}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+    .meta .chip{font-size:12px;padding:6px 10px}
+    .actions{display:flex;gap:8px;margin-top:auto;padding:12px}
+    .actions .btn{flex:1}
+    .section{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+    .section h2{margin:0}
+    .panel{margin-top:20px;background:#fff;border:1px solid #e3ebff;border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid #eef2ff;text-align:left;font-size:14px}
+    th{color:var(--muted);font-weight:600}
+    .status{padding:6px 9px;border-radius:999px;border:1px solid #e3ebff;display:inline-block;font-size:12px}
+    .form{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .form .field{display:flex;flex-direction:column;gap:6px}
+    .form input,.form select{padding:10px 12px;border-radius:12px;border:1px solid #dbe6ff;outline:none}
+    .form .btn{grid-column:1/-1}
+    .drawer{position:fixed;right:16px;bottom:16px;z-index:50;width:320px;background:#fff;border:1px solid #dbe6ff;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.18);display:none;flex-direction:column;max-height:80vh}
+    .drawer header{position:sticky;top:0;background:#fff;border-bottom:1px solid #eef2ff;padding:12px 14px;border-radius:16px 16px 0 0}
+    .drawer .body{padding:10px 14px;overflow:auto}
+    .drawer .foot{padding:12px 14px;border-top:1px solid #eef2ff;background:#f9fbff;border-radius:0 0 16px 16px}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(16,24,40,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+    .modal{width:min(560px,100%);background:#fff;border-radius:16px;border:1px solid #dbe6ff;box-shadow:var(--shadow)}
+    .modal header{padding:14px 16px;border-bottom:1px solid #eef2ff;font-weight:700}
+    .modal .body{padding:16px}
+    .modal .actions{padding:14px 16px}
+    .hidden{display:none!important}
+    .select{padding:10px 12px;border:1px solid #dbe6ff;border-radius:10px;background:#fff}
+    .pill-group{display:flex;gap:10px;flex-wrap:wrap}
+    .tag{background:#eef5ff;border:1px solid #dbe6ff;color:var(--primary);padding:6px 10px;border-radius:999px;font-size:12px}
+    .tok{display:flex;align-items:center;gap:8px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav container">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">FT</div>
+        <div>FishTrade<small>B2B рыба: производители ↔ розничные сети</small></div>
+      </div>
+      <form class="searchbar" onsubmit="event.preventDefault(); applySearch(this.q.value)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-3.8-3.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10.5" cy="10.5" r="7.5" stroke="currentColor" stroke-width="2"/></svg>
+        <input name="q" placeholder="Поиск: вид рыбы, регион, производитель…" />
+        <button class="chip" type="button" onclick="resetFilters()">Сброс</button>
+      </form>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="role" role="tablist" aria-label="Роль пользователя">
+          <button id="role-buyer" class="active" role="tab" aria-selected="true" onclick="setRole('retailer')">Розничный</button>
+          <button id="role-producer" role="tab" aria-selected="false" onclick="setRole('producer')">Производитель</button>
+        </div>
+        <div id="producerKey" class="tok hidden">
+          <input id="apiKeyInput" placeholder="x-api-key" style="padding:8px 10px;border:1px solid #dbe6ff;border-radius:10px">
+          <button class="chip" onclick="saveKey()">Сохранить</button>
+        </div>
+        <button class="iconbtn" aria-label="Корзина" onclick="toggleCart()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6h15l-2 9H8L6 2H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="21" r="1.8" fill="currentColor"/><circle cx="18" cy="21" r="1.8" fill="currentColor"/></svg>
+          <span id="cartCount" class="cart-count hidden">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero" aria-label="Вступительный блок">
+      <div class="banner">
+        <span class="badge">MVP</span>
+        <h1>Конкурентные оптовые цены — напрямую от производителя</h1>
+        <p>Без посредников. Прозрачно: партия, происхождение, класс, подтверждённые объёмы.</p>
+        <div class="cta">
+          <button class="btn primary" onclick="openRFQ()">Запросить цену (RFQ)</button>
+          <button class="btn secondary" onclick="document.getElementById('market').scrollIntoView({behavior:'smooth'})">Смотреть предложения</button>
+        </div>
+      </div>
+      <div class="index" aria-live="polite">
+        <h3>Индекс цен</h3>
+        <div class="kpis">
+          <div class="kpi"><span class="muted">Средняя $/кг</span><b id="kpi-avg">—</b></div>
+          <div class="kpi"><span class="muted">Лучшая $/кг</span><b id="kpi-best">—</b></div>
+          <div class="kpi"><span class="muted">Активных лотов</span><b id="kpi-lots">—</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="filters" aria-label="Фильтры">
+      <div class="pill-group" id="categoryChips"></div>
+      <select class="select" id="sortSelect" onchange="renderLots()">
+        <option value="priceAsc">Сначала дешевле</option>
+        <option value="priceDesc">Сначала дороже</option>
+        <option value="freshFirst">Сначала свежая</option>
+        <option value="ratingDesc">Рейтинг продавца</option>
+      </select>
+    </section>
+
+    <section id="market">
+      <div class="section">
+        <h2>Маркетплейс</h2>
+        <div class="muted">Цены задаёт продавец, доступна заявка на торг (RFQ).</div>
+      </div>
+      <div id="grid" class="grid" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" id="rfq-board">
+      <div class="section">
+        <h2>Запросы на котировку (RFQ)</h2>
+        <div class="muted">Покупатели создают запросы; производители отвечают предложениями.</div>
+      </div>
+      <div style="overflow:auto">
+        <table aria-label="Таблица RFQ">
+          <thead><tr><th>#</th><th>Вид</th><th>Объём</th><th>Локация</th><th>Цель</th><th>Статус</th><th>Предложения</th><th></th></tr></thead>
+          <tbody id="rfqTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="producer-lots" style="display:none">
+      <div class="section">
+        <h2>Мои лоты (производитель)</h2>
+        <div class="muted">Публикуйте партии с минимальной ценой и параметрами.</div>
+      </div>
+      <form class="form" onsubmit="event.preventDefault(); addLot(this)">
+        <div class="field"><label>Вид</label><input required name="species" placeholder="Лосось, Треска, Тунец…"/></div>
+        <div class="field"><label>Форма</label><select name="form" required><option>Свежая</option><option>Охлаждённая</option><option>Мороженая</option><option>Филе</option></select></div>
+        <div class="field"><label>Цена $/кг</label><input required name="price" type="number" min="0" step="0.01"/></div>
+        <div class="field"><label>Мин. партия, кг</label><input required name="min" type="number" min="1" step="1"/></div>
+        <div class="field"><label>Объём, кг</label><input required name="stock" type="number" min="1" step="1"/></div>
+        <div class="field"><label>Регион</label><input required name="loc" placeholder="Мурманск, Владивосток…"/></div>
+        <button class="btn primary">Опубликовать лот</button>
+      </form>
+    </section>
+
+    <section class="panel" id="orders-panel">
+      <div class="section">
+        <h2>Заказы</h2>
+        <div class="muted">Демонстрационные заказы сохраняются на сервере.</div>
+      </div>
+      <div style="overflow:auto">
+        <table aria-label="Таблица заказов">
+          <thead><tr><th>#</th><th>Позиции</th><th>Сумма</th><th>Дата</th><th>Статус</th></tr></thead>
+          <tbody id="ordersTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <aside id="cartDrawer" class="drawer" aria-label="Корзина" aria-hidden="true">
+    <header class="row">
+      <strong>Корзина</strong>
+      <button class="chip" onclick="toggleCart()">Закрыть</button>
+    </header>
+    <div class="body" id="cartBody"></div>
+    <div class="foot">
+      <div class="row"><div>Итого:</div><div class="price" id="cartTotal">$0</div></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary" onclick="openRFQ()">Запросить цену</button>
+        <button class="btn primary" onclick="checkout()">Оформить</button>
+      </div>
+    </div>
+  </aside>
+
+  <div id="modalRFQ" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rfqTitle">
+    <div class="modal">
+      <header id="rfqTitle">Создать RFQ</header>
+      <div class="body">
+        <form class="form" onsubmit="event.preventDefault(); submitRFQ(this)">
+          <div class="field"><label>Вид</label><input name="species" required placeholder="Напр. Лосось"/></div>
+          <div class="field"><label>Объём, кг</label><input name="qty" type="number" min="100" step="10" required/></div>
+          <div class="field"><label>Локация</label><input name="loc" required placeholder="Город/порт"/></div>
+          <div class="field"><label>Целевая цена, $/кг</label><input name="target" type="number" step="0.01" min="0"/></div>
+          <div class="field"><label>Дата поставки</label><input name="date" type="date" required/></div>
+          <div class="field"><label>Комментарии</label><input name="note" placeholder="Класс, упаковка, сертификация…"/></div>
+          <button class="btn primary">Отправить RFQ</button>
+        </form>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" onclick="closeRFQ()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalOffer" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="offerTitle">
+    <div class="modal">
+      <header id="offerTitle">Ответ на RFQ</header>
+      <div class="body">
+        <form class="form" onsubmit="event.preventDefault(); submitOffer(this)">
+          <input type="hidden" name="rfqId">
+          <div class="field"><label>Цена, $/кг</label><input name="price" type="number" step="0.01" min="0" required/></div>
+          <div class="field"><label>Доставка</label><input name="delivery" placeholder="Напр. 5–7 дней EXW → DAP"/></div>
+          <div class="field"><label>Комментарий</label><input name="note" placeholder="Условия оплаты, класс, фасовка…"/></div>
+          <button class="btn primary">Отправить предложение</button>
+        </form>
+      </div>
+      <div class="actions"><button class="btn secondary" onclick="closeOffer()">Отмена</button></div>
+    </div>
+  </div>
+
+<script>
+const USD = v => `$${Number(v).toFixed(2)}`;
+const state = {
+  role: localStorage.getItem('role') || 'retailer',
+  cart: [], filter:{q:'', cats:new Set()}, sort: localStorage.getItem('sort') || 'priceAsc',
+  lots: [], rfqs: [], orders: [], apiKey: localStorage.getItem('apiKey') || ''
+};
+
+async function api(path, opts={}){
+  const r = await fetch(path, {
+    headers: {'Content-Type':'application/json', ...(state.apiKey?{'x-api-key':state.apiKey}:{})},
+    ...opts
+  });
+  if(!r.ok) throw new Error((await r.json()).error || r.statusText);
+  return r.json();
+}
+
+/* ---------- UI / Filters ---------- */
+function buildCategoryChips(){
+  const wrap=document.getElementById('categoryChips');
+  const cats=[...new Set(state.lots.map(p=>p.species))].sort();
+  wrap.innerHTML='';
+  cats.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='chip'; b.type='button';
+    b.setAttribute('aria-pressed', state.filter.cats.has(c));
+    b.textContent=c;
+    b.onclick=()=>{ if(state.filter.cats.has(c)) state.filter.cats.delete(c); else state.filter.cats.add(c); b.setAttribute('aria-pressed', state.filter.cats.has(c)); renderLots(); };
+    wrap.appendChild(b);
+  });
+}
+function applySearch(q){ state.filter.q=(q||'').trim().toLowerCase(); renderLots(); }
+function resetFilters(){ state.filter.q=''; state.filter.cats.clear(); document.querySelector('.searchbar input').value=''; buildCategoryChips(); renderLots(); }
+function setRole(r){ state.role=r; localStorage.setItem('role',r); document.getElementById('producer-lots').style.display = (r==='producer')?'block':'none'; document.getElementById('role-buyer').classList.toggle('active', r==='retailer'); document.getElementById('role-producer').classList.toggle('active', r==='producer'); document.getElementById('producerKey').classList.toggle('hidden', r!=='producer'); }
+function saveKey(){ const v=document.getElementById('apiKeyInput').value.trim(); state.apiKey=v; localStorage.setItem('apiKey', v); alert('API ключ сохранён'); }
+
+/* ---------- Render ---------- */
+function renderLots(){
+  const grid=document.getElementById('grid');
+  let list = state.lots.slice();
+  if(state.filter.cats.size) list = list.filter(p=>state.filter.cats.has(p.species));
+  if(state.filter.q){ const q=state.filter.q; list = list.filter(p=>[p.species,p.form,p.loc,p.seller].some(v=>String(v).toLowerCase().includes(q))); }
+  const sSel = document.getElementById('sortSelect').value;
+  localStorage.setItem('sort', sSel);
+  if(sSel==='priceAsc') list.sort((a,b)=>a.price-b.price);
+  if(sSel==='priceDesc') list.sort((a,b)=>b.price-a.price);
+  if(sSel==='freshFirst') list.sort((a,b)=> (a.form==='Свежая'?0:1)-(b.form==='Свежая'?0:1)||a.price-b.price );
+  if(sSel==='ratingDesc') list.sort((a,b)=>b.rating-a.rating);
+
+  const avg = list.reduce((s,p)=>s+p.price,0)/Math.max(1,list.length);
+  const best = list.reduce((m,p)=>Math.min(m,p.price), Infinity);
+  document.getElementById('kpi-avg').textContent = isFinite(avg)?USD(avg):'—';
+  document.getElementById('kpi-best').textContent= isFinite(best)?USD(best):'—';
+  document.getElementById('kpi-lots').textContent = String(list.length);
+
+  grid.innerHTML='';
+  list.forEach(p=>{
+    const el=document.createElement('article');
+    el.className='card';
+    el.innerHTML = `
+      <div class="thumb"><div class="badge">${p.species}</div><div aria-hidden="true">🐟</div></div>
+      <div class="content">
+        <div class="row"><strong>${p.form}</strong><span class="price">${USD(p.price)}/кг</span></div>
+        <div class="seller"><div class="dot"></div><div><div><b>${p.seller}</b> · <span class="muted">${p.loc}</span></div><div class="muted">${p.rating.toFixed(1)} ★ · мин. ${p.min} кг · ${p.updated||''}</div></div></div>
+        <div class="meta"><span class="chip">Остаток: ${p.stock} кг</span><span class="chip">Торгуемо</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" onclick="openRFQ('${p.species}', ${p.price})">RFQ</button>
+        <button class="btn primary" onclick="addToCart('${p.id}', ${p.min}, ${p.price}, '${p.species} · ${p.form}', '${p.seller}')">В корзину</button>
+      </div>`;
+    grid.appendChild(el);
+  });
+  document.getElementById('cartCount').classList.toggle('hidden', cartQty()===0);
+  document.getElementById('cartCount').textContent = String(cartQty());
+}
+
+function cartQty(){ return state.cart.reduce((n,i)=>n+i.qty,0); }
+function addToCart(id,min,price,title,seller){
+  const e = state.cart.find(i=>i.id===id);
+  if(e){ e.qty += min; } else { state.cart.push({id, qty:min, price, title, seller}); }
+  drawCart();
+  document.getElementById('cartDrawer').style.display='flex';
+}
+function drawCart(){
+  const body=document.getElementById('cartBody');
+  if(!state.cart.length){ body.innerHTML='<div class="muted">Корзина пуста</div>'; document.getElementById('cartTotal').textContent='$0'; document.getElementById('cartCount').classList.add('hidden'); return; }
+  body.innerHTML=''; let total=0;
+  state.cart.forEach((i,idx)=>{
+    const sum=i.qty*i.price; total+=sum;
+    const row=document.createElement('div'); row.style.marginBottom='10px';
+    row.innerHTML=`
+      <div class="row"><b>${i.title}</b><span>${USD(i.price)}/кг</span></div>
+      <div class="row"><span class="muted">${i.seller}</span>
+        <div>
+          <button class="chip" onclick="chgQty(${idx},-10)">-10</button>
+          <button class="chip" onclick="chgQty(${idx},-1)">-1</button>
+          <span class="tag">${i.qty} кг</span>
+          <button class="chip" onclick="chgQty(${idx},1)">+1</button>
+          <button class="chip" onclick="chgQty(${idx},10)">+10</button>
+        </div>
+      </div>
+      <div class="row"><span></span><b>${USD(sum)}</b></div>
+      <hr style="border:none;border-top:1px solid #eef2ff">`;
+    body.appendChild(row);
+  });
+  document.getElementById('cartTotal').textContent=USD(total);
+  document.getElementById('cartCount').classList.toggle('hidden', cartQty()===0);
+  document.getElementById('cartCount').textContent=String(cartQty());
+}
+function chgQty(index,delta){
+  const item=state.cart[index]; if(!item) return;
+  item.qty=Math.max(0,item.qty+delta);
+  if(item.qty===0) state.cart.splice(index,1);
+  drawCart();
+}
+function toggleCart(){
+  const d=document.getElementById('cartDrawer');
+  d.style.display = (d.style.display!=='flex')?'flex':'none';
+}
+async function checkout(){
+  if(!state.cart.length) return;
+  const total = state.cart.reduce((s,i)=>s+i.qty*i.price,0);
+  const items = state.cart.map(i=>({title:i.title, qty:i.qty, price:i.price}));
+  await api('/api/orders', {method:'POST', body: JSON.stringify({items,total})});
+  state.cart=[]; drawCart();
+  await loadOrders();
+  alert('Заказ создан');
+}
+
+/* ---------- RFQ ---------- */
+function openRFQ(prefSpecies='', refPrice){ const m=document.getElementById('modalRFQ'); m.style.display='flex'; const f=m.querySelector('form'); f.species.value = prefSpecies||''; f.target.value = refPrice||''; }
+function closeRFQ(){ document.getElementById('modalRFQ').style.display='none' }
+async function submitRFQ(form){
+  await api('/api/rfqs', {method:'POST', body: JSON.stringify({species:form.species.value, qty:Number(form.qty.value), loc:form.loc.value, target:Number(form.target.value||0)||null, date:form.date.value, note:form.note.value})});
+  closeRFQ(); await loadRFQs();
+}
+function openOffer(rid){ const m=document.getElementById('modalOffer'); m.style.display='flex'; m.querySelector('form').rfqId.value = rid; }
+function closeOffer(){ document.getElementById('modalOffer').style.display='none' }
+async function submitOffer(form){ await api(`/api/rfqs/${form.rfqId.value}/offers`, {method:'POST', body: JSON.stringify({price:Number(form.price.value), delivery:form.delivery.value, note:form.note.value})}); closeOffer(); await loadRFQs(); }
+
+/* ---------- Producer ---------- */
+async function addLot(f){
+  await api('/api/lots', {method:'POST', body: JSON.stringify({species:f.species.value, form:f.form.value, price:Number(f.price.value), min:Number(f.min.value), stock:Number(f.stock.value), loc:f.loc.value, seller:'Мой завод'})});
+  f.reset(); await loadLots();
+}
+
+/* ---------- Tables ---------- */
+function renderRFQsTable(){
+  const tb=document.getElementById('rfqTable');
+  if(!state.rfqs.length){ tb.innerHTML='<tr><td colspan="8" class="muted">Запросов пока нет</td></tr>'; return; }
+  tb.innerHTML='';
+  state.rfqs.forEach(r=>{
+    const offers = r.offers.length ? r.offers.map((o,i)=>`<span class="tag">#${i+1}: $${o.price}/кг</span>`).join(' ') : '<span class="muted">нет</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${r.id}</td><td>${r.species}</td><td>${r.qty}</td><td>${r.loc}</td><td>${r.target?('$'+r.target):'—'}</td><td><span class="status">${r.status}</span></td><td>${offers}</td><td>${state.role==='producer'?`<button class="chip" onclick="openOffer('${r.id}')">Ответить</button>`:''}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function renderOrdersTable(){
+  const tb=document.getElementById('ordersTable');
+  if(!state.orders.length){ tb.innerHTML='<tr><td colspan="5" class="muted">Заказов пока нет</td></tr>'; return; }
+  tb.innerHTML='';
+  state.orders.forEach(o=>{
+    const items = o.items.map(i=>`${i.title} — ${i.qty} кг × $${i.price}`).join('<br>');
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${o.id}</td><td>${items}</td><td><b>$${o.total}</b></td><td>${new Date(o.date).toLocaleString()}</td><td><span class="status">${o.status}</span></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+/* ---------- Loaders ---------- */
+async function loadLots(){
+  state.lots = await api(`/api/products?sort=${encodeURIComponent(localStorage.getItem('sort')||'priceAsc')}`);
+  buildCategoryChips();
+  renderLots();
+}
+async function loadRFQs(){ state.rfqs = await api('/api/rfqs'); renderRFQsTable(); }
+async function loadOrders(){ state.orders = await api('/api/orders'); renderOrdersTable(); }
+
+/* ---------- Init ---------- */
+document.getElementById('sortSelect').value = state.sort;
+setRole(state.role);
+document.getElementById('apiKeyInput').value = state.apiKey||'';
+loadLots(); loadRFQs(); loadOrders();
+</script>
+</body>
+</html>
