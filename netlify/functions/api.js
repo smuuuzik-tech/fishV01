@@ -124,6 +124,7 @@ exports.handler = async function(event) {
       id: 'O'+Date.now(),
       items: b.items || [],
       total: Number(b.total || 0),
+      buyer: b.buyer || null,
       date: new Date().toISOString(),
       status: 'Создан'
     };
